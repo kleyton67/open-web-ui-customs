@@ -1,0 +1,6 @@
+services:
+  external_search:
+    build:
+      context: .
+    ports:
+      - 8888:80
