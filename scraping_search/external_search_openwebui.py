@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI, Header, Body, Request, Response
+from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from scraping_ddkg import ddkg_search
 from typing import List
@@ -13,11 +14,11 @@ app = FastAPI()
 
 
 # Middleware to log requests and responses with processing time
-class LoggingMiddleware:
+class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
-        self.app = app
+        super().__init__(app)
 
-    async def __call__(self, request: Request, call_next: Response):
+    async def dispatch(self, request: Request, call_next: Response):
         start_time = process_time()  # Start timer to measure processing time
 
         response = await call_next(request)  # Call the next middleware or route handler
