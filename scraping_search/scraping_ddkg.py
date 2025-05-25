@@ -53,8 +53,6 @@ def ddkg_search(url: int, results_amount: int):
         sleep(0.01)
         if i > results_amount:
             break
-        import pdb
-        pdb.set_trace()
         results_list.append(
             
             SearchResult(
