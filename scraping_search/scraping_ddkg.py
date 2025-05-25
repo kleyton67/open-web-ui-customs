@@ -16,7 +16,7 @@ class SearchResult(BaseModel):
     link: str
     description: str
 
-def ddkg_search(url):
+def ddkg_search(url: int, results_amount: int):
     # Set up options
     options = Options()
     options.add_argument("-headless")  # For headless testing
@@ -48,9 +48,11 @@ def ddkg_search(url):
     list_items : List[WebElement] =  element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
 
     results_list = []
-    for item in list_items:
+    for i, item in enumerate(list_items):
         #item.get_attribute("innerHTML") to see all html of this component
-        sleep(1)
+        sleep(0.01)
+        if i > results_amount:
+            break
         results_list.append(
             
             SearchResult(
@@ -60,9 +62,15 @@ def ddkg_search(url):
             )
         )
         
-        
-    
-    return results_list
+    # Use webcrawler to load data from each url:
+    # async with AsyncWebCrawler(
+        #     browser_type="firefox",
+        #     headless=False
+        # ) as crawler:
+        #     # Configure specific browser settings
+        #     await crawler.fetch("https://example.com")
+            
+        #     return results_list
 if __name__ == "__main__":
     # Example usage
     l_results = ddkg_search("https://duckduckgo.com/?q=asdkf")

@@ -28,7 +28,7 @@ async def external_search(
     authorization: str | None = Header(None),
 ):
     
-    results_list = ddkg_search(f'https://duckduckgo.com/?t=h_&q={search_request.query}&ia=web')
+    results_list = ddkg_search(f'https://duckduckgo.com/?t=h_&q={search_request.query}&ia=web', search_request.count)
 
     logger.info("Results from Duckduckgo:")
     logger.info(results_list)
