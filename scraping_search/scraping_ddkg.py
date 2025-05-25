@@ -53,6 +53,8 @@ def ddkg_search(url: int, results_amount: int):
         sleep(0.01)
         if i > results_amount:
             break
+        import pdb
+        pdb.set_trace()
         results_list.append(
             
             SearchResult(
@@ -70,10 +72,11 @@ def ddkg_search(url: int, results_amount: int):
         #     # Configure specific browser settings
         #     await crawler.fetch("https://example.com")
             
-        #     return results_list
+    return results_list
+
 if __name__ == "__main__":
     # Example usage
-    l_results = ddkg_search("https://duckduckgo.com/?q=asdkf")
+    l_results = ddkg_search("https://duckduckgo.com/?q=test_123", 5)
 
     import pdb
     pdb.set_trace()
