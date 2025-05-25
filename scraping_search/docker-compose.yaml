@@ -2,5 +2,6 @@ services:
   external_search:
     build:
       context: .
+    network_mode: bridge
     ports:
       - 8888:80
