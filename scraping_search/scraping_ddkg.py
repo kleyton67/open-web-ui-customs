@@ -11,6 +11,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from typing import List
 from time import sleep
 
+
 class SearchResult(BaseModel):
     title: str
     link: str
@@ -61,15 +62,9 @@ def ddkg_search(url: int, results_amount: int):
                 description=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
             )
         )
+    
+    driver.quit()
         
-    # Use webcrawler to load data from each url:
-    # async with AsyncWebCrawler(
-        #     browser_type="firefox",
-        #     headless=False
-        # ) as crawler:
-        #     # Configure specific browser settings
-        #     await crawler.fetch("https://example.com")
-            
     return results_list
 
 if __name__ == "__main__":
