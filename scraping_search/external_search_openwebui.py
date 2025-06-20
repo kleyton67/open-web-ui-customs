@@ -149,10 +149,10 @@ async def loader_web_page(
             LoaderResult(
                 page_content=crawler_rep.content,
                 metadata=MetadataLoader(
-                    url=url,
-                    title=markdown_crawler[:25],
-                    source=url,
-                    description=markdown_crawler[:100],
+                    url=crawler_rep.url,
+                    title=crawler_rep.content[:25],
+                    source=crawler_rep.url,
+                    description=crawler_rep.content[:100],
                 ),
             )
         )
