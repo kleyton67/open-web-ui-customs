@@ -2,7 +2,7 @@ import os
 import uvicorn
 import asyncio
 import traceback
-from fastapi import FastAPI, Header, Body, Request, Response,  HTTPException
+from fastapi import FastAPI, Header, Body, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from scraping_ddkg import ddkg_search
@@ -19,6 +19,7 @@ EXPECTED_BEARER_TOKEN = "your_secret_token_here"
 
 app = FastAPI()
 
+
 # Middleware to log requests and responses with processing time
 class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
@@ -26,9 +27,11 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         start_time = process_time()  # Start timer to measure processing time
-        
+
         try:
-            response = await call_next(request)  # Call the next middleware or route handler
+            response = await call_next(
+                request
+            )  # Call the next middleware or route handler
         except HTTPException as e:
             logger.error(traceback.print_exc())
             logger.error(f"Request Method: {request.method}")
@@ -44,13 +47,12 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             logger.error(f"Exception Details: {str(e)}")
             return Response(content="Internal Server Error", status_code=500)
         else:
-            
             process_time_diff = process_time() - start_time  # Calculate processing time
             logger.info(f"Request Method: {request.method}")
             logger.info(f"Request Path: {request.url.path}")
             logger.info(f"Response Status Code: {response.status_code}")
             logger.info(f"Processing Time: {process_time_diff:.4f} seconds")
-        
+
         return response
 
 
@@ -72,17 +74,23 @@ class SearchRequest(BaseModel):
     query: str
     count: int
 
+
 class LoaderRequest(BaseModel):
     urls: List[str]
+
 
 class SearchResult(BaseModel):
     link: str
     title: str | None
     snippet: str | None
 
+
 class MetadataLoader(BaseModel):
     url: str
     title: str | None
+    source: str
+    description: str
+
 
 class LoaderResult(BaseModel):
     page_content: str
@@ -104,13 +112,14 @@ async def external_search(
     logger.info(results_list)
     return results_list
 
+
 @app.post("/loader")
 async def loader_web_page(
     req_loader: LoaderRequest = Body(...),
     authorization: str | None = Header(None),
 ):
     # req_loader = LoaderRequest.model_validate(req_loader)
-    
+
     loader_res = []
     later_run = []
     for url in req_loader.urls:
@@ -120,24 +129,48 @@ async def loader_web_page(
             markdown_crawler = cache
             logger.info("Results from cache:")
             logger.info(markdown_crawler)
-            loader_res.append(LoaderResult(
-                page_content=markdown_crawler,
-                metadata=MetadataLoader(url=url, title=markdown_crawler[:25])
-            ))
+            loader_res.append(
+                LoaderResult(
+                    page_content=markdown_crawler,
+                    metadata=MetadataLoader(
+                        url=url,
+                        title=markdown_crawler[:25],
+                        source=url,
+                        description=markdown_crawler[:100],
+                    ),
+                )
+            )
         else:
             later_run.append(crawler(url=url))
-    
-    results:CrawlerReponse = await asyncio.gather(*later_run)
-    [loader_res.append(LoaderResult(
+
+    results: CrawlerReponse = await asyncio.gather(*later_run)
+    [
+        loader_res.append(
+            LoaderResult(
                 page_content=crawler_rep.content,
-                metadata=MetadataLoader(url=crawler_rep.url, title=crawler_rep.content[:25])
-            )) for crawler_rep in results if not isinstance(crawler_rep, Exception)]
+                metadata=MetadataLoader(
+                    url=url,
+                    title=markdown_crawler[:25],
+                    source=url,
+                    description=markdown_crawler[:100],
+                ),
+            )
+        )
+        for crawler_rep in results
+        if not isinstance(crawler_rep, Exception)
+    ]
     # Data to be stored in Redis with an expiration of one week (7 days)
     expiration_time = timedelta(weeks=1)
-    [client.setex(crawler_res.metadata.url, int(expiration_time.total_seconds()), crawler_res.page_content) for crawler_res in loader_res]
+    [
+        client.setex(
+            crawler_res.metadata.url,
+            int(expiration_time.total_seconds()),
+            crawler_res.page_content,
+        )
+        for crawler_res in loader_res
+    ]
 
     return loader_res
-
 
 
 if __name__ == "__main__":
