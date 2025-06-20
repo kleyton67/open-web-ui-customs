@@ -15,7 +15,7 @@ from time import sleep
 class SearchResult(BaseModel):
     title: str
     link: str
-    description: str
+    snippet: str
 
 def ddkg_search(url: int, results_amount: int):
     # Set up options
@@ -59,7 +59,7 @@ def ddkg_search(url: int, results_amount: int):
             SearchResult(
                 title=item.find_element(By.CSS_SELECTOR, 'h2 a').text,
                 link=item.find_elements(By.CSS_SELECTOR, 'h2 a')[0].get_attribute("href"),
-                description=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
+                snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
             )
         )
     
@@ -69,7 +69,7 @@ def ddkg_search(url: int, results_amount: int):
 
 if __name__ == "__main__":
     # Example usage
-    l_results = ddkg_search("https://duckduckgo.com/?q=test_123", 5)
+    l_results = ddkg_search("https://duckduckgo.com/?q=test_123", 5)    
 
     import pdb
     pdb.set_trace()

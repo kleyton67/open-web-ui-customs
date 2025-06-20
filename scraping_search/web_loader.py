@@ -1,4 +1,5 @@
 
+import re
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium import webdriver
@@ -71,6 +72,8 @@ async def crawler(url: str) -> CrawlerReponse:
         " " * len(string.whitespace),
     )
     cleaned_text = soup.get_text().translate(translator)
+
+    cleaned_text = re.sub(r' +', ' ', cleaned_text)
 
     return CrawlerReponse(
         url=url,

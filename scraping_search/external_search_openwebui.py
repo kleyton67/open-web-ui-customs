@@ -122,7 +122,7 @@ async def loader_web_page(
             logger.info(markdown_crawler)
             loader_res.append(LoaderResult(
                 page_content=markdown_crawler,
-                metadata=MetadataLoader(url=url, title="")
+                metadata=MetadataLoader(url=url, title=markdown_crawler[:25])
             ))
         else:
             later_run.append(crawler(url=url))
@@ -130,7 +130,7 @@ async def loader_web_page(
     results:CrawlerReponse = await asyncio.gather(*later_run)
     [loader_res.append(LoaderResult(
                 page_content=crawler_rep.content,
-                metadata=MetadataLoader(url=crawler_rep.url, title="")
+                metadata=MetadataLoader(url=crawler_rep.url, title=crawler_rep.content[:25])
             )) for crawler_rep in results if not isinstance(crawler_rep, Exception)]
     # Data to be stored in Redis with an expiration of one week (7 days)
     expiration_time = timedelta(weeks=1)
