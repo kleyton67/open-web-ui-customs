@@ -80,6 +80,10 @@ class SearchResult(BaseModel):
     title: str | None
     snippet: str | None
 
+class MetadataLoader(BaseModel):
+    url: str
+    title: str | None
+
 class LoaderResult(BaseModel):
     page_content: str
     metadata: str
@@ -118,7 +122,7 @@ async def loader_web_page(
             logger.info(markdown_crawler)
             loader_res.append(LoaderResult(
                 page_content=markdown_crawler,
-                metadata=url
+                metadata=MetadataLoader(url=url, title="")
             ))
         else:
             later_run.append(crawler(url=url))
@@ -126,7 +130,7 @@ async def loader_web_page(
     results:CrawlerReponse = await asyncio.gather(*later_run)
     [loader_res.append(LoaderResult(
                 page_content=crawler_rep.content,
-                metadata=crawler_rep.url
+                metadata=MetadataLoader(url=crawler_rep.url, title="")
             )) for crawler_rep in results if not isinstance(crawler_rep, Exception)]
     # Data to be stored in Redis with an expiration of one week (7 days)
     expiration_time = timedelta(weeks=1)
