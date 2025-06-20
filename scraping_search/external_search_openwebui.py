@@ -1,35 +1,68 @@
+import os
 import uvicorn
-from fastapi import FastAPI, Header, Body, Request, Response
+import asyncio
+import traceback
+from fastapi import FastAPI, Header, Body, Request, Response,  HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from scraping_ddkg import ddkg_search
 from typing import List
 from loguru import logger
 from time import process_time
+from web_loader import crawler, CrawlerReponse
+import redis
+from datetime import timedelta
+
 # from duckduckgo_search import DDGS
 
 EXPECTED_BEARER_TOKEN = "your_secret_token_here"
 
 app = FastAPI()
 
-
 # Middleware to log requests and responses with processing time
 class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next: Response):
+    async def dispatch(self, request: Request, call_next):
         start_time = process_time()  # Start timer to measure processing time
-
-        response = await call_next(request)  # Call the next middleware or route handler
-
-        logger.info(f"Request Method: {request.method}")
-        logger.info(f"Request Path: {request.url.path}")
-        logger.info(f"Response Status Code: {response.status_code}")
-        process_time_diff = process_time() - start_time  # Calculate processing time
-        logger.info(f"Processing Time: {process_time_diff:.4f} seconds")
+        
+        try:
+            response = await call_next(request)  # Call the next middleware or route handler
+        except HTTPException as e:
+            logger.error(traceback.print_exc())
+            logger.error(f"Request Method: {request.method}")
+            logger.error(f"Request Path: {request.url.path}")
+            logger.error(f"HTTP Exception Status Code: {e.status_code}")
+            logger.error(f"Exception Details: {str(e)}")
+            return Response(content=str(e), status_code=e.status_code)
+        except Exception as e:
+            logger.error(traceback.print_exc())
+            logger.error(f"Request Method: {request.method}")
+            logger.error(f"Request Path: {request.url.path}")
+            logger.error(f"Unhandled Exception Status Code: 500")
+            logger.error(f"Exception Details: {str(e)}")
+            return Response(content="Internal Server Error", status_code=500)
+        else:
+            
+            process_time_diff = process_time() - start_time  # Calculate processing time
+            logger.info(f"Request Method: {request.method}")
+            logger.info(f"Request Path: {request.url.path}")
+            logger.info(f"Response Status Code: {response.status_code}")
+            logger.info(f"Processing Time: {process_time_diff:.4f} seconds")
+        
         return response
 
+
+# Import necessary libraries
+
+# Define the Redis connection parameters
+REDIS_HOST = os.getenv("redis_host")
+REDIS_PORT = os.getenv("redis_port")
+REDIS_DB = 0
+
+# Create a Redis client
+client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 # Mount the middleware to the FastAPI app
 app.add_middleware(LoggingMiddleware)
@@ -39,11 +72,17 @@ class SearchRequest(BaseModel):
     query: str
     count: int
 
+class LoaderRequest(BaseModel):
+    urls: List[str]
 
 class SearchResult(BaseModel):
     link: str
     title: str | None
     snippet: str | None
+
+class LoaderResult(BaseModel):
+    page_content: str
+    metadata: str
 
 
 @app.post("/search")
@@ -61,6 +100,41 @@ async def external_search(
     logger.info(results_list)
     return results_list
 
+@app.post("/loader")
+async def loader_web_page(
+    req_loader: LoaderRequest = Body(...),
+    authorization: str | None = Header(None),
+):
+    # req_loader = LoaderRequest.model_validate(req_loader)
+    
+    loader_res = []
+    later_run = []
+    for url in req_loader.urls:
+        logger.info(f"Crawling {url}")
+        cache = client.getex(name=url)
+        if cache:
+            markdown_crawler = cache
+            logger.info("Results from cache:")
+            logger.info(markdown_crawler)
+            loader_res.append(LoaderResult(
+                page_content=markdown_crawler,
+                metadata=url
+            ))
+        else:
+            later_run.append(crawler(url=url))
+    
+    results:CrawlerReponse = await asyncio.gather(*later_run)
+    [loader_res.append(LoaderResult(
+                page_content=crawler_rep.content,
+                metadata=crawler_rep.url
+            )) for crawler_rep in results if not isinstance(crawler_rep, Exception)]
+    # Data to be stored in Redis with an expiration of one week (7 days)
+    expiration_time = timedelta(weeks=1)
+    [client.setex(crawler_res.metadata, int(expiration_time.total_seconds()), crawler_res.page_content) for crawler_res in loader_res]
+
+    return loader_res
+
+
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=8888)

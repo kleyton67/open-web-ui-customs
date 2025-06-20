@@ -1,7 +1,15 @@
 services:
+  redis:
+    image: redis:latest
+    container_name: redis_db_custom_openweb
+    ports:
+      - "8479:6379"
+    volumes:
+      - ./redis_data:/data
+
   external_search:
     build:
       context: .
     network_mode: bridge
     ports:
-      - 8888:80
+      - 8488:80

@@ -65,7 +65,7 @@ def ddkg_search(url: int, results_amount: int):
     
     driver.quit()
         
-    return results_list
+    return results_list[:results_amount]
 
 if __name__ == "__main__":
     # Example usage

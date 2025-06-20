@@ -4,3 +4,4 @@ selenium
 loguru
 bs4
 uvicorn
+redis
