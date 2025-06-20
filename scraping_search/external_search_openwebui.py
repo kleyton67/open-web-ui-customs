@@ -86,7 +86,7 @@ class MetadataLoader(BaseModel):
 
 class LoaderResult(BaseModel):
     page_content: str
-    metadata: str
+    metadata: MetadataLoader
 
 
 @app.post("/search")
@@ -134,7 +134,7 @@ async def loader_web_page(
             )) for crawler_rep in results if not isinstance(crawler_rep, Exception)]
     # Data to be stored in Redis with an expiration of one week (7 days)
     expiration_time = timedelta(weeks=1)
-    [client.setex(crawler_res.metadata, int(expiration_time.total_seconds()), crawler_res.page_content) for crawler_res in loader_res]
+    [client.setex(crawler_res.metadata.url, int(expiration_time.total_seconds()), crawler_res.page_content) for crawler_res in loader_res]
 
     return loader_res
 
