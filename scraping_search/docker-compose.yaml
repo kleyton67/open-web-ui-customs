@@ -15,6 +15,7 @@ services:
 
   external_search:
     network_mode: bridge
+    env_file: .env
     build:
       context: .
     ports:
