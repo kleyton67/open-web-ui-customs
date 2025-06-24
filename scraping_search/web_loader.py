@@ -40,20 +40,26 @@ async def crawler(url: str) -> CrawlerReponse:
 
     service = Service(executable_path=driver_path)
 
-    driver = webdriver.Firefox(service=service, options=options)
+    try:
+        driver = webdriver.Firefox(service=service, options=options)
 
-    driver.get(url)
+        driver.get(url)
 
-    wait = WebDriverWait(driver, 10)
-    # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-js-loaded]')))
-    # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-ready]')))
-    # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-script-loaded]')))
+        wait = WebDriverWait(driver, 10)
+        # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-js-loaded]')))
+        # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-ready]')))
+        # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-script-loaded]')))
 
-    # html = element.get_attribute("innerHTML")
-    
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-    driver.close()
-    driver.quit()
+        # html = element.get_attribute("innerHTML")
+        
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+    except:
+        driver.close()
+        driver.quit()
+        return None
+    finally:
+        driver.close()
+        driver.quit()
 
     # Remove unnecessary tags and attributes
     for script in soup(["script", "style"]):

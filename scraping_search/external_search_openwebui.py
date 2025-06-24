@@ -164,7 +164,7 @@ async def loader_web_page(
         else:
             later_run.append(crawler(url=url))
 
-    results: CrawlerReponse = await asyncio.gather(*later_run)
+    results: CrawlerReponse = await asyncio.gather(*later_run, return_exceptions=True)
     [
         loader_res.append(
             LoaderResult(
