@@ -52,6 +52,7 @@ async def crawler(url: str) -> CrawlerReponse:
     # html = element.get_attribute("innerHTML")
     
     soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.close()
     driver.quit()
 
     # Remove unnecessary tags and attributes

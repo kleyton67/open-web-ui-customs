@@ -20,6 +20,25 @@ EXPECTED_BEARER_TOKEN = "your_secret_token_here"
 app = FastAPI()
 
 
+def reap_children():
+    """Function to avoid zumbie process from librewolf browser
+    """
+    try:
+        pid = True
+        while pid:
+            pid = os.waitpid(-1, os.WNOHANG)
+
+            #Wonka's Solution to avoid infinite loop cause pid value -> (0, 0)
+            try:
+                if pid[0] == 0:
+                    pid = False
+            except:
+                pass
+            #---- ----
+
+    except ChildProcessError:
+        pass
+
 # Middleware to log requests and responses with processing time
 class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
@@ -52,6 +71,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             logger.info(f"Request Path: {request.url.path}")
             logger.info(f"Response Status Code: {response.status_code}")
             logger.info(f"Processing Time: {process_time_diff:.4f} seconds")
+
+        reap_children()
 
         return response
 

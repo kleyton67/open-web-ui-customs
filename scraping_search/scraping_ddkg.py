@@ -10,6 +10,7 @@ from pydantic import BaseModel
 from selenium.webdriver.remote.webelement import WebElement
 from typing import List
 from time import sleep
+import os
 
 
 class SearchResult(BaseModel):
@@ -66,7 +67,7 @@ def ddkg_search(url: int, results_amount: int):
                 snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
             )
         )
-    
+    driver.close()
     driver.quit()
         
     return results_list[:results_amount]
