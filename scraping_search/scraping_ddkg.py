@@ -22,6 +22,10 @@ def ddkg_search(url: int, results_amount: int):
     options = Options()
     options.add_argument("-headless")  # For headless testing
     options.assume_request_during_headless = True
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     # options.binary_location = "/opt/waterfox/waterfox"
     options.binary_location = "librewolf"
     # driver_path = "/opt/geckodriver/geckodriver"
