@@ -56,7 +56,10 @@ async def crawler(url: str) -> CrawlerReponse:
     except:
         driver.close()
         driver.quit()
-        return None
+        return CrawlerReponse(
+            url=url,
+            content="Non acessible"
+        )
     finally:
         driver.close()
         driver.quit()
