@@ -46,29 +46,37 @@ def ddkg_search(url: int, results_amount: int):
 
     driver = webdriver.Firefox(service=service, options=options)
 
-    driver.get(url)
+    try:
+        driver.get(url)
 
-    wait = WebDriverWait(driver, 10)
-    element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "react-results--main")))
+        wait = WebDriverWait(driver, 10)
+        element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "react-results--main")))
 
-    list_items : List[WebElement] =  element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
+        list_items : List[WebElement] =  element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
 
-    results_list = []
-    for i, item in enumerate(list_items):
-        #item.get_attribute("innerHTML") to see all html of this component
-        sleep(0.01)
-        if i > results_amount:
-            break
-        results_list.append(
-            
-            SearchResult(
-                title=item.find_element(By.CSS_SELECTOR, 'h2 a').text,
-                link=item.find_elements(By.CSS_SELECTOR, 'h2 a')[0].get_attribute("href"),
-                snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
+        results_list = []
+        for i, item in enumerate(list_items):
+            #item.get_attribute("innerHTML") to see all html of this component
+            sleep(0.01)
+            if i > results_amount:
+                break
+            results_list.append(
+                
+                SearchResult(
+                    title=item.find_element(By.CSS_SELECTOR, 'h2 a').text,
+                    link=item.find_elements(By.CSS_SELECTOR, 'h2 a')[0].get_attribute("href"),
+                    snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
+                )
             )
-        )
-    driver.close()
-    driver.quit()
+    except:
+        results_list.append(SearchResult(
+            title="Error on server to get results",
+            link="Error",
+            snippet="Error"
+        ))
+    finally:
+        driver.close()
+        driver.quit()
         
     return results_list[:results_amount]
 
