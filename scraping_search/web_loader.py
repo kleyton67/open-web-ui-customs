@@ -21,7 +21,7 @@ class CrawlerReponse(BaseModel):
 
 def crawler(url: str) -> CrawlerReponse:
     options = Options()
-    options.add_argument("-headless")  # For headless testing
+    options.add_argument("--headless")  # For headless testing
     options.assume_request_during_headless = True
     # options.binary_location = "/opt/waterfox/waterfox"
     # options.binary_location = "/usr/bin/firefox"
