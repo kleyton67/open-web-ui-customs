@@ -28,7 +28,7 @@ def ddkg_search(url: int, results_amount: int):
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     # options.binary_location = "/opt/waterfox/waterfox"
-    options.binary_location = "librewolf"
+    options.binary_location = "/usr/bin/firefox"
     # driver_path = "/opt/geckodriver/geckodriver"
     driver_path = "/usr/src/app/geckodriver"
 
