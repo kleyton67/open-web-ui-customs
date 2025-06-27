@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 EXPOSE 80
 
-CMD ["python", "external_search_openwebui.py"]
+ENTRYPOINT docker/entrypoint.sh
