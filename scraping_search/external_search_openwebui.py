@@ -143,6 +143,7 @@ async def loader_web_page(
 
     loader_res = []
     later_run = []
+    results: List[CrawlerReponse] = []
     for url in req_loader.urls:
         logger.info(f"Crawling {url}")
         cache = client.getex(name=url)
@@ -162,9 +163,10 @@ async def loader_web_page(
                 )
             )
         else:
-            later_run.append(crawler(url=url))
+            results.append(await crawler(url=url))
 
-    results: CrawlerReponse = await asyncio.gather(*later_run, return_exceptions=True)
+    # results: CrawlerReponse = await asyncio.gather(*later_run, return_exceptions=True)
+
     [
         loader_res.append(
             LoaderResult(
