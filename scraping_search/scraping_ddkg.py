@@ -18,69 +18,58 @@ class SearchResult(BaseModel):
     link: str
     snippet: str
 
-def ddkg_search(url: int, results_amount: int):
-    # Set up options
-    options = Options()
-    options.add_argument("-headless")  # For headless testing
-    options.assume_request_during_headless = True
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    # options.binary_location = "/opt/waterfox/waterfox"
-    options.binary_location = "/usr/bin/firefox"
-    # driver_path = "/opt/geckodriver/geckodriver"
-    driver_path = "/usr/src/app/geckodriver"
-
-    # firefox_profile.set_preference(
-    #     'intl.accept_languages', 'en-US'
-    # )
-    options.set_preference(
-        'geo.enabled', True
-    )
-    options.set_preference('geo.provider.network.url',
-    'data:application/json,{"location": {"lat": 51.47, "lng": 0.0}, "accuracy": 100.0}')
-    # options.profile = firefox_profile
-
-    service = Service(executable_path=driver_path)
-
-    driver = webdriver.Firefox(service=service, options=options)
-
-    results_list: List[SearchResult] = []
-
-    try:
-        driver.get(url)
-
-        wait = WebDriverWait(driver, 10)
-        element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "react-results--main")))
-
-        list_items : List[WebElement] =  element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
-
+class Searcher:
+    def __init__(self):
+        # Set up options
+        options = Options()
+        options.add_argument("-headless")  # For headless testing
+        options.assume_request_during_headless = True
+        options.add_argument("--headless=new")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.binary_location = "/usr/bin/firefox"
+        service = Service(executable_path="/usr/src/app/geckodriver")
         
-        for i, item in enumerate(list_items):
-            #item.get_attribute("innerHTML") to see all html of this component
-            sleep(0.01)
-            if i > results_amount:
-                break
-            results_list.append(
-                
-                SearchResult(
-                    title=item.find_element(By.CSS_SELECTOR, 'h2 a').text,
-                    link=item.find_elements(By.CSS_SELECTOR, 'h2 a')[0].get_attribute("href"),
-                    snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
+        # Initialize the driver
+        self.driver = webdriver.Firefox(service=service, options=options)
+    
+    def ddkg_search(self, url: str, results_amount: int) -> List[SearchResult]:
+        try:
+            self.driver.get(url)
+            
+            wait = WebDriverWait(self.driver, 10)
+            element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "react-results--main")))
+            
+            list_items: List[WebElement] = element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
+            
+            results_list: List[SearchResult] = []
+            
+            for i, item in enumerate(list_items):
+                sleep(0.01)
+                if i >= results_amount:
+                    break
+                results_list.append(
+                    SearchResult(
+                        title=item.find_element(By.CSS_SELECTOR, 'h2 a').text,
+                        link=item.find_elements(By.CSS_SELECTOR, 'h2 a')[0].get_attribute("href"),
+                        snippet=item.find_elements(By.CSS_SELECTOR, 'div [data-result="snippet"]')[0].text
+                    )
                 )
-            )
-    except:
-        results_list.append(SearchResult(
-            title="Error on server to get results",
-            link="Error",
-            snippet="Error"
-        ))
-    finally:
-        driver.close()
-        driver.quit()
+            return results_list[:results_amount]
         
-    return results_list[:results_amount]
+        except Exception as e:
+            results_list.append(SearchResult(
+                title="Error on server to get results",
+                link="Error",
+                snippet=str(e)
+            ))
+            return results_list
+    
+    def __del__(self):
+        # Close and quit the driver
+        self.driver.close()
+        self.driver.quit()
 
 if __name__ == "__main__":
     # Example usage

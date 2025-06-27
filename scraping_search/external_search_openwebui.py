@@ -5,7 +5,7 @@ import traceback
 from fastapi import FastAPI, Header, Body, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
-from scraping_ddkg import ddkg_search
+from scraping_ddkg import Searcher
 from typing import List
 from loguru import logger
 from time import process_time
@@ -124,7 +124,8 @@ async def external_search(
     authorization: str | None = Header(None),
 ):
     logger.info(f"Searching for {search_request.query}")
-    results_list = ddkg_search(
+    searcher = Searcher()
+    results_list = searcher.ddkg_search(
         f"https://duckduckgo.com/?t=h_&q={search_request.query}&ia=web",
         search_request.count,
     )
