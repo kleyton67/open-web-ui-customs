@@ -19,7 +19,7 @@ class CrawlerReponse(BaseModel):
     url: str
     content: str
 
-async def crawler(url: str) -> CrawlerReponse:
+def crawler(url: str) -> CrawlerReponse:
     options = Options()
     options.add_argument("-headless")  # For headless testing
     options.assume_request_during_headless = True
