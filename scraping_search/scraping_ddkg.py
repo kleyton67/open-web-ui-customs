@@ -46,6 +46,8 @@ def ddkg_search(url: int, results_amount: int):
 
     driver = webdriver.Firefox(service=service, options=options)
 
+    results_list: List[SearchResult] = []
+
     try:
         driver.get(url)
 
@@ -54,7 +56,7 @@ def ddkg_search(url: int, results_amount: int):
 
         list_items : List[WebElement] =  element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
 
-        results_list = []
+        
         for i, item in enumerate(list_items):
             #item.get_attribute("innerHTML") to see all html of this component
             sleep(0.01)
