@@ -24,7 +24,7 @@ def crawler(url: str) -> CrawlerReponse:
     options.add_argument("-headless")  # For headless testing
     options.assume_request_during_headless = True
     # options.binary_location = "/opt/waterfox/waterfox"
-    options.binary_location = "firefox"
+    # options.binary_location = "/usr/bin/firefox"
     # driver_path = "/opt/geckodriver/geckodriver"
     driver_path = "/usr/src/app/geckodriver"
 
