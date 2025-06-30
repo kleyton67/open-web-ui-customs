@@ -35,6 +35,7 @@ class Searcher:
         self.driver = webdriver.Firefox(service=service, options=options)
     
     def ddkg_search(self, url: str, results_amount: int) -> List[SearchResult]:
+        results_list: List[SearchResult] = []
         try:
             self.driver.get(url)
             
@@ -42,8 +43,6 @@ class Searcher:
             element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "react-results--main")))
             
             list_items: List[WebElement] = element.find_elements(By.CSS_SELECTOR, 'li[data-layout="organic"]')
-            
-            results_list: List[SearchResult] = []
             
             for i, item in enumerate(list_items):
                 sleep(0.01)
@@ -64,7 +63,8 @@ class Searcher:
                 link="Error",
                 snippet=str(e)
             ))
-            return results_list
+        
+        return results_list
     
     def __del__(self):
         # Close and quit the driver
