@@ -14,10 +14,19 @@ from time import sleep
 import string
 from bs4 import BeautifulSoup
 import asyncio
+from queue import Queue
+
 
 class CrawlerReponse(BaseModel):
     url: str
     content: str
+
+def process_url(url: str, results_queue: Queue):
+    result = crawler(url=url)
+    if isinstance(result, Exception):
+        results_queue.put((url, result))
+    else:
+        results_queue.put((url, result.content))
 
 def crawler(url: str) -> CrawlerReponse:
     options = Options()

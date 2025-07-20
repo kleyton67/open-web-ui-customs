@@ -1,4 +1,5 @@
 import os
+from concurrent.futures import ThreadPoolExecutor
 import uvicorn
 import asyncio
 import traceback
@@ -9,9 +10,10 @@ from scraping_ddkg import Searcher
 from typing import List
 from loguru import logger
 from time import process_time
-from web_loader import crawler, CrawlerReponse
+from web_loader import crawler, CrawlerReponse, process_url
 import redis
 from datetime import timedelta
+from queue import Queue
 
 # from duckduckgo_search import DDGS
 
@@ -143,30 +145,48 @@ async def loader_web_page(
     # req_loader = LoaderRequest.model_validate(req_loader)
 
     loader_res = []
-    later_run = []
+    results_queue = Queue()
     results: List[CrawlerReponse] = []
-    for url in req_loader.urls:
-        logger.info(f"Crawling {url}")
-        cache = client.getex(name=url)
-        if cache:
-            markdown_crawler = cache
-            logger.info("Results from cache:")
-            logger.info(markdown_crawler)
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # Submit tasks to the thread pool
+        for url in req_loader.body.urls:
+            logger.info(f"Crawling {url}")
+            cache = client.getex(name=url)
+            if cache:
+                markdown_crawler = cache
+                logger.info("Results from cache:")
+                logger.info(markdown_crawler)
+                loader_res.append(
+                    LoaderResult(
+                        page_content=markdown_crawler,
+                        metadata=MetadataLoader(
+                            url=url,
+                            title=markdown_crawler[:25],
+                            source=url,
+                            description=markdown_crawler[:100],
+                        ),
+                    )
+                )
+            else:
+                executor.submit(process_url, url, results_queue)
+
+    # Collect results from the queue
+    while not results_queue.empty():
+        url, result = results_queue.get()
+        if isinstance(result, Exception):
+            loader_res.append(crawler(url=url))  # Retry on exception
+        else:
             loader_res.append(
                 LoaderResult(
-                    page_content=markdown_crawler,
+                    page_content=result,
                     metadata=MetadataLoader(
                         url=url,
-                        title=markdown_crawler[:25],
+                        title=result[:25],
                         source=url,
-                        description=markdown_crawler[:100],
+                        description=result[:100],
                     ),
                 )
             )
-        else:
-            results.append(crawler(url=url))
-
-    # results: CrawlerReponse = await asyncio.gather(*later_run, return_exceptions=True)
 
     [
         loader_res.append(
