@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Body, Header
+from fastapi import FastAPI, Body, Header, Request  # Importação da classe Request
 from fastapi.middleware.base import BaseHTTPMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -19,7 +19,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):  # Importação da classe Request
         """
         Implementação do middleware de registro de logs.
         """
@@ -82,7 +82,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):  # Importação da classe Request
         """
         Implementação do middleware de registro de logs.
         """
