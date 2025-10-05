@@ -12,6 +12,7 @@ from loguru import logger
 from time import process_time
 from web_loader import crawler, CrawlerReponse, process_url
 import redis
+from celery import process_search_query
 from datetime import timedelta
 from queue import Queue
 
@@ -126,11 +127,13 @@ async def external_search(
     authorization: str | None = Header(None),
 ):
     logger.info(f"Searching for {search_request.query}")
-    searcher = Searcher()
-    results_list = searcher.ddkg_search(
-        f"https://duckduckgo.com/?t=h_&q={search_request.query}&ia=web",
-        search_request.count,
-    )
+
+    process_search_query.apply_async(args=(search_request.query, search_request.count))
+
+    while not async_result.ready():
+        time.sleep(0.5)
+
+    results_list = async_result.get()
 
     logger.info("Results from Duckduckgo:")
     logger.info(results_list)
@@ -150,7 +153,7 @@ async def loader_web_page(
     with ThreadPoolExecutor(max_workers=10) as executor:
         # Submit tasks to the thread pool
         for url in req_loader.body.urls:
-            logger.info(f"Crawling {url}")
+            logger.info(f"Crawling {url}")  
             cache = client.getex(name=url)
             if cache:
                 markdown_crawler = cache
