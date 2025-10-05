@@ -22,16 +22,16 @@ class Searcher:
     def __init__(self):
         # Set up options
         options = Options()
-        # options.add_argument("-headless")  # For headless testing
+        options.add_argument("-headless")  # For headless testing
         options.assume_request_during_headless = True
         options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        # options.binary_location = "/usr/bin/firefox"
-        # service = Service(executable_path="/usr/src/app/geckodriver")
-        options.binary_location = "/usr/local/bin/waterfox"
-        service = Service(executable_path="/opt/geckodriver/geckodriver")
+        options.binary_location = "/usr/bin/firefox"
+        service = Service(executable_path="/usr/src/app/geckodriver")
+        # options.binary_location = "/usr/local/bin/waterfox"
+        # service = Service(executable_path="/opt/geckodriver/geckodriver")
         
         # Initialize the driver
         self.driver = webdriver.Firefox(service=service, options=options)

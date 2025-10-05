@@ -6,13 +6,12 @@ import traceback
 from fastapi import FastAPI, Header, Body, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
-from scraping_ddkg import Searcher
 from typing import List
 from loguru import logger
 from time import process_time
 from web_loader import crawler, CrawlerReponse, process_url
 import redis
-from celery import process_search_query
+from task import process_search_query
 from datetime import timedelta
 from queue import Queue
 
@@ -128,12 +127,7 @@ async def external_search(
 ):
     logger.info(f"Searching for {search_request.query}")
 
-    process_search_query.apply_async(args=(search_request.query, search_request.count))
-
-    while not async_result.ready():
-        time.sleep(0.5)
-
-    results_list = async_result.get()
+    results_list = process_search_query(search_request.query, search_request.count)
 
     logger.info("Results from Duckduckgo:")
     logger.info(results_list)
@@ -152,7 +146,7 @@ async def loader_web_page(
     results: List[CrawlerReponse] = []
     with ThreadPoolExecutor(max_workers=10) as executor:
         # Submit tasks to the thread pool
-        for url in req_loader.body.urls:
+        for url in req_loader.urls:
             logger.info(f"Crawling {url}")  
             cache = client.getex(name=url)
             if cache:
