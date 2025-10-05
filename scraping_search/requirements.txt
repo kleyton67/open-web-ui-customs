@@ -1,40 +1,5 @@
-import asyncio
-from redis import Redis
-from aiohttp import ClientSession
-from web_loader import crawler
-
-# Configurações do Redis
-REDIS_HOST = os.getenv("redis_host", "localhost")
-REDIS_PORT = int(os.getenv("redis_port", 6379))
-REDIS_DB = 0
-
-# Conexão com o Redis
-redis_client = Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
-
-# Limite de concorrência (número máximo de threads em andamento)
-MAX_CONCURRENCY = 10
-
-async def worker():
-    async with ClientSession() as session:
-        semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
-        
-        while True:
-            # Obter uma URL do Redis
-            url = await redis_client.brpop("urls_to_crawl", timeout=0)
-            if url:
-                url = url[1].decode('utf-8')
-                
-                async with semaphore:
-                    try:
-                        # Processar a URL usando o crawler
-                        result = await crawler(url, session)
-                        
-                        # Salvar o resultado no Redis
-                        await redis_client.set(f"result:{url}", result.json())
-                    except Exception as e:
-                        print(f"Erro ao processar {url}: {e}")
-                
-            await asyncio.sleep(1)
-
-if __name__ == "__main__":
-    asyncio.run(worker())
+celery
+selenium
+bs4
+pydantic
+loguru
