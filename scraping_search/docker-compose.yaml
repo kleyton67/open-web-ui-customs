@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  celery_worker:
+    container_name: celery_custom_openweb
+    build: .
+    command: celery worker --app=celery.app.celery --loglevel=info
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/openwebuisearch
+      - CELERY_RESULT_BACKEND=redis://redis:6379/openwebuisearch
+    depends_on:
+      - redis
+
   redis:
     network_mode: bridge
     image: redis:latest
