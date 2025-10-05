@@ -12,7 +12,6 @@ services:
       - redis
 
   redis:
-    network_mode: bridge
     image: redis:latest
     container_name: redis_db_custom_openweb
     ports:
