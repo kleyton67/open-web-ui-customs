@@ -17,7 +17,7 @@ import asyncio
 from queue import Queue
 
 
-class CrawlerReponse(BaseModel):
+class CrawlerResponse(BaseModel):
     url: str
     content: str
 
@@ -28,7 +28,7 @@ def process_url(url: str, results_queue: Queue):
     else:
         results_queue.put((url, result.content))
 
-def crawler(url: str) -> CrawlerReponse:
+def crawler(url: str) -> CrawlerResponse:
     options = Options()
     options.add_argument("--headless")  # For headless testing
     options.assume_request_during_headless = True
@@ -65,7 +65,7 @@ def crawler(url: str) -> CrawlerReponse:
     except:
         driver.close()
         driver.quit()
-        return CrawlerReponse(
+        return CrawlerResponse(
             url=url,
             content="Non acessible"
         )
@@ -94,7 +94,7 @@ def crawler(url: str) -> CrawlerReponse:
 
     cleaned_text = re.sub(r' +', ' ', cleaned_text)
 
-    return CrawlerReponse(
+    return CrawlerResponse(
         url=url,
         content=cleaned_text
     )
