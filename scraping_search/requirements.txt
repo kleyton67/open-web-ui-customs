@@ -6,3 +6,4 @@ loguru
 uvicorn
 fastapi
 redis
+fastmcp

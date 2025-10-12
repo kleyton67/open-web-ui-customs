@@ -16,9 +16,7 @@ class Tools:
         """
 
         now = datetime.now()
-        current_time = now.strftime("%I:%M:%S")
-        current_date = now.strftime(
-            "%A, %Y, %B %d"
-        )  # Full weekday, month name, day, and year
+        current_time = now.strftime("%H:%M:%S")  # Using 12-hour format with AM/PM
+        current_date = now.strftime("%A, %d, %B, %Y")  # Full weekday
 
-        return f"Current Date and Time is  {current_date}, {current_time}"
+        return f"Today is {current_date} in the ISO format, and the time now is {current_time}."

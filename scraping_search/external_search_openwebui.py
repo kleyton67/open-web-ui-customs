@@ -1,7 +1,6 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 import uvicorn
-import asyncio
 import traceback
 from fastapi import FastAPI, Header, Body, Request, Response, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -9,7 +8,7 @@ from pydantic import BaseModel
 from typing import List
 from loguru import logger
 from time import process_time
-from web_loader import crawler, CrawlerReponse, process_url
+from web_loader import crawler, CrawlerResponse, process_url
 import redis
 from task import process_search_query
 from datetime import timedelta
@@ -34,7 +33,7 @@ def reap_children():
             try:
                 if pid[0] == 0:
                     pid = False
-            except:
+            except Exception:
                 pass
             #---- ----
 
@@ -64,7 +63,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             logger.error(traceback.print_exc())
             logger.error(f"Request Method: {request.method}")
             logger.error(f"Request Path: {request.url.path}")
-            logger.error(f"Unhandled Exception Status Code: 500")
+            logger.error("Unhandled Exception Status Code: 500")
             logger.error(f"Exception Details: {str(e)}")
             return Response(content="Internal Server Error", status_code=500)
         else:
@@ -81,9 +80,15 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 # Import necessary libraries
 
+# Documentation: This file implements a FastAPI service for external search and web content loading. It includes:
+# - Search endpoint /search for query processing
+# - Loader endpoint /loader for URL content fetching
+# - Redis caching for URL results
+# - Request logging middleware
+
 # Define the Redis connection parameters
 REDIS_HOST = os.getenv("redis_host")
-REDIS_PORT = os.getenv("redis_port")
+REDIS_PORT = int(os.getenv("redis_port", "6379"))
 REDIS_DB = 0
 
 # Create a Redis client
@@ -139,11 +144,11 @@ async def loader_web_page(
     req_loader: LoaderRequest = Body(...),
     authorization: str | None = Header(None),
 ):
-    # req_loader = LoaderRequest.model_validate(req_loader)
+    req_loader = LoaderRequest.model_validate(req_loader)
 
     loader_res = []
     results_queue = Queue()
-    results: List[CrawlerReponse] = []
+    results: List[CrawlerResponse] = []
     with ThreadPoolExecutor(max_workers=10) as executor:
         # Submit tasks to the thread pool
         for url in req_loader.urls:

@@ -1,0 +1,24 @@
+meta {
+  name: web-loader_local
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://0.0.0.0:8888/loader
+  body: json
+  auth: inherit
+}
+
+body:json {
+  
+  {"urls": [
+    "https://www.motorola.com.br/smartphone-motorola-edge-60-fusion-5g/p?idsku=1652",
+    "https://www.climatempo.com.br/previsao-do-tempo/15-dias/cidade/802/mongagua-sp",
+    "https://www.python.org/about/gettingstarted/"
+  ]}
+}
+
+body:multipart-form {
+  urls: ["https://www.motorola.com.br/smartphone-motorola-edge-60-fusion-5g/p?idsku=1652", "https://www.climatempo.com.br/previsao-do-tempo/15-dias/cidade/802/mongagua-sp"]
+}
