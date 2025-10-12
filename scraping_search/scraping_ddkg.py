@@ -5,7 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.service import Service
-from bs4 import BeautifulSoup
 from pydantic import BaseModel
 from selenium.webdriver.remote.webelement import WebElement
 from typing import List

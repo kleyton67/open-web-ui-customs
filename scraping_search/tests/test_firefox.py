@@ -1,8 +1,6 @@
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.service import Service
-from pydantic import BaseModel
 from bs4 import BeautifulSoup
 
 options = Options()
