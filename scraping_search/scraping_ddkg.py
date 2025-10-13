@@ -27,10 +27,10 @@ class Searcher:
         options.add_argument("--disable-gpu")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        # options.binary_location = "/usr/bin/firefox"
-        # service = Service(executable_path="/usr/src/app/geckodriver")
-        options.binary_location = "/opt/waterfox/waterfox"
-        service = Service(executable_path="/opt/geckodriver/geckodriver")
+        options.binary_location = "/usr/bin/firefox"
+        service = Service(executable_path="/usr/src/app/geckodriver")
+        # options.binary_location = "/opt/waterfox/waterfox"
+        # service = Service(executable_path="/opt/geckodriver/geckodriver")
         
         # Initialize the driver
         self.driver = webdriver.Firefox(service=service, options=options)

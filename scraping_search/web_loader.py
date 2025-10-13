@@ -1,5 +1,6 @@
 
 import re
+import traceback
 from selenium.webdriver.firefox.options import Options
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -9,6 +10,7 @@ from pydantic import BaseModel
 import string
 import asyncio
 from queue import Queue
+from loguru import logger
 
 
 class CrawlerResponse(BaseModel):
@@ -57,6 +59,8 @@ def crawler(url: str) -> CrawlerResponse:
         
         soup = BeautifulSoup(driver.page_source, "html.parser")
     except:
+        logger.error(f"Could access the link {url}")
+        logger.error(traceback.format_exc())
         driver.close()
         driver.quit()
         return CrawlerResponse(
@@ -87,6 +91,8 @@ def crawler(url: str) -> CrawlerResponse:
     cleaned_text = soup.get_text().translate(translator)
 
     cleaned_text = re.sub(r' +', ' ', cleaned_text)
+
+    logger.debug(f"{cleaned_text}")
 
     return CrawlerResponse(
         url=url,

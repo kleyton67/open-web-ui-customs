@@ -1,12 +1,12 @@
 import requests
 
-loader_host = "http://10.28.33.120:8488"
+loader_host = "http://0.0.0.0:8888"
 
-urls = ["https://docs.openwebui.com/features/plugin/tools/ "]
+urls = ["https://aider.chat/docs/usage/lint-test.html"]
 
 payload = {"urls": urls}
                 
-res = requests.post(f"{loader_host}/loader", json=payload)
+res = requests.post(f"{loader_host}/loader", json=payload, allow_redirects=True)
 
 import pdb
 pdb.set_trace()

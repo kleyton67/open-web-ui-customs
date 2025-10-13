@@ -87,8 +87,8 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 # - Request logging middleware
 
 # Define the Redis connection parameters
-REDIS_HOST = os.getenv("redis_host")
-REDIS_PORT = int(os.getenv("redis_port", "6379"))
+REDIS_HOST = os.getenv("redis_host", "10.28.33.120")
+REDIS_PORT = int(os.getenv("redis_port", "30479"))
 REDIS_DB = 0
 
 # Create a Redis client
@@ -126,7 +126,7 @@ class LoaderResult(BaseModel):
 
 
 @app.post("/search")
-async def external_search(
+def external_search(
     search_request: SearchRequest = Body(...),
     authorization: str | None = Header(None),
 ):
@@ -140,7 +140,7 @@ async def external_search(
 
 
 @app.post("/loader")
-async def loader_web_page(
+def loader_web_page(
     req_loader: LoaderRequest = Body(...),
     authorization: str | None = Header(None),
 ):

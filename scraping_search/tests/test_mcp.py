@@ -6,7 +6,7 @@ server = FastMCP("TestServer")
 client = Client(server)
 
 # HTTP server
-client = Client("http://0.0.0.0:8889/mcp")
+client = Client("http://10.28.33.120:30489/mcp")
 
 
 async def main():
