@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field
-from typing import List, Union
+from typing import List
 import requests
 import traceback
 from loguru import logger

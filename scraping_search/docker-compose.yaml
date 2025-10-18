@@ -29,6 +29,7 @@ services:
     env_file: .env
     network_mode: bridge
     build:
+      dockerfile: ./docker/Dockerfile
       context: .
     ports:
       - 30488:8888
