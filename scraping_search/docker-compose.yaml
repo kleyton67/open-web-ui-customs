@@ -15,7 +15,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - "300056379"
+      - "30005:6379"
     volumes:
       - ./redis_data:/data
     healthcheck:
