@@ -31,7 +31,7 @@ def crawler(url: str) -> CrawlerResponse:
     # options.binary_location = "/opt/waterfox/waterfox"
     options.binary_location = "/usr/bin/firefox"
     # driver_path = "/opt/geckodriver/geckodriver"
-    driver_path = "/usr/src/app/geckodriver"
+    driver_path = "/opt/geckodriver/geckodriver"
 
     # firefox_profile.set_preference(
     #     'intl.accept_languages', 'en-US'
