@@ -15,7 +15,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - "30479:6379"
+      - "300056379"
     volumes:
       - ./redis_data:/data
     healthcheck:
@@ -32,9 +32,9 @@ services:
       dockerfile: ./docker/Dockerfile
       context: .
     ports:
-      - 30488:8888
-      - 30489:8889
-      - 30401:9001
+      - 30002:8888
+      - 30003:8889
+      - 30004:9001
     depends_on:
       redis:
         condition: service_healthy
