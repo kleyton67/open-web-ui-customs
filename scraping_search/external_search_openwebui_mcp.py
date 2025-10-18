@@ -95,4 +95,4 @@ def url_loader(request: LoaderRequest, ctx: Context):
     return loader_res
 
 if __name__ == "__main__":
-    mcp.run(transport="http", host="127.0.0.1", port=8889, log_level="DEBUG")
+    mcp.run(transport="http", host="0.0.0.0", port=8889, log_level="DEBUG")
