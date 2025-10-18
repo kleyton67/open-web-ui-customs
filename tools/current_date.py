@@ -9,11 +9,11 @@ class Tools:
 
     def get_current_time(self) -> str:
         """
-        Get the current time in a more human-readable format.
+        Displays the current date and time.
         """
 
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")  # Using 12-hour format with AM/PM
-        current_date = now.strftime("%A, %d, %B, %Y")  # Full weekday
+        current_date = now.strftime("%A, day %d, %B in the year %Y")  # Full weekday
 
         return f"Today is {current_date} in the ISO format, and the time now is {current_time}."

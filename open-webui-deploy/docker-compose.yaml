@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:cuda
+    container_name: open-webui
+    network_mode: bridge
+    ports:
+      - "8380:8080"
+    volumes:
+      - ./open-webui-data:/app/backend/data
+    env_file: .env
+    restart: unless-stopped
+
+  pg_vector:
+    image: pgvector/pgvector:0.8.1-pg18-trixie
+    container_name: open-webui-pg_vector
+    network_mode: bridge
+    volumes:
+      - ./pgvector:/app/backend/data
+    env_file: .env
+    ports:
+      - "8388:5432"
